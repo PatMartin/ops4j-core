@@ -1,0 +1,33 @@
+<configuration>
+	<!-- Stop output INFO at start -->
+	<statusListener
+		class="ch.qos.logback.core.status.NopStatusListener" />
+	<logger name="smile" level="ERROR" />
+	<logger name="org.mongodb" level="ERROR" />
+	<logger name="org.xnio" level="ERROR" />
+	<logger name="io.undertow" level="ERROR" />
+	<logger name="org.jboss" level="ERROR" />
+	<logger name="ops.jackson" level="TRACE" />
+	<logger name="com.jayway.jsonpath" level="ERROR"/>
+	<appender name="STDOUT"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<!-- encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder 
+			by default -->
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="STDERR"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<target>System.err</target>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="trace">
+		<appender-ref ref="STDERR" />
+	</root>
+</configuration>
