@@ -40,6 +40,8 @@ public class Locator
   // node-op:/path(args)
   private Pattern                                   fnPattern     = Pattern
       .compile("^\\s*(\\S+)\\((.*)\\)\\s*", Pattern.CASE_INSENSITIVE);
+  private Pattern                                   fnPattern2     = Pattern
+      .compile("^\\s*(\\S+):(.*)\\s*", Pattern.CASE_INSENSITIVE);
   // node-op
   // node-op:/path
   private Pattern                                   noargsPattern = Pattern
@@ -383,6 +385,7 @@ public class Locator
   {
     logger.DEBUG("resolveSource(", expression, ")");
     Matcher fnMatcher = fnPattern.matcher(expression);
+    Matcher fnMatcher2 = fnPattern2.matcher(expression);
     Matcher noArgsMatcher = noargsPattern.matcher(expression);
 
     boolean MATCH = false;
@@ -396,11 +399,19 @@ public class Locator
       logger.DEBUG("MATCH: fnName='", fnName, "', fnArgs='", fnArgs, "'");
       MATCH = true;
     }
+    // This must precede fnMatcher2 currently:
     else if (noArgsMatcher.matches())
     {
       fnName = noArgsMatcher.group(1);
       logger.DEBUG("MATCH: fnName='", fnName, "'");
       fnArgs = "";
+      MATCH = true;
+    }
+    else if (fnMatcher2.matches())
+    {
+      fnName = fnMatcher2.group(1);
+      fnArgs = fnMatcher2.group(2);
+      logger.DEBUG("MATCH: fnName2='", fnName, "', fnArgs2='", fnArgs, "'");
       MATCH = true;
     }
     if (MATCH)

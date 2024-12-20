@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.ops4j.OpData;
+import org.ops4j.Ops4J;
 import org.ops4j.base.BaseOp;
 import org.ops4j.cli.OpCLI;
 import org.ops4j.exception.OpsException;
@@ -22,21 +23,21 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@AutoService(Op.class)
-@Command(name = "stream", description = "Stream data.")
+@AutoService(Op.class) @Command(name = "stream", description = "Stream data.")
 public class Stream extends BaseOp<Stream> implements JsonSource
 {
   @Parameters(index = "0", arity = "1", description = "The input file.")
   private @Getter @Setter String input;
 
-  @Option(names = { "--array" }, description = "Read the file into a single array at the end.")
-  private boolean                circular  = false;
+  @Option(names = { "--array" },
+      description = "Read the file into a single array at the end.")
+  private boolean                circular = false;
 
   @Option(names = { "--limit" }, description = "Limits the number of "
       + "records to stream. (Default = 0 = unlimited)")
-  private @Getter @Setter long   limit     = 0;
+  private @Getter @Setter long   limit    = 0;
 
-  private Iterator<JsonNode>     it        = null;
+  private Iterator<JsonNode>     it       = null;
 
   public Stream()
   {
@@ -51,11 +52,14 @@ public class Stream extends BaseOp<Stream> implements JsonSource
       if (circular)
       {
         it = new CircularIterator<JsonNode>(
-            JsonNodeIterator.fromPath(getInput()), getLimit());
+            // JsonNodeIterator.fromPath(getInput()), getLimit());
+            JsonNodeIterator.fromInputStream(
+                Ops4J.locator().resolveSource(getInput()).stream()));
       }
       else
       {
-        it = JsonNodeIterator.fromPath(getInput());
+        it = JsonNodeIterator.fromInputStream(
+            Ops4J.locator().resolveSource(getInput()).stream());
       }
     }
     catch(IOException ex)
@@ -69,7 +73,7 @@ public class Stream extends BaseOp<Stream> implements JsonSource
   {
     return new OpData(it.next()).asList();
   }
-  
+
   public static void main(String args[]) throws OpsException
   {
     OpCLI.cli(new Stream(), args);

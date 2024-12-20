@@ -24,6 +24,7 @@ import picocli.CommandLine.Parameters;
 public class MapJson extends BaseOp<MapJson>
 {
   @Parameters(index = "0", arity = "0..*",
+      paramLabel = "<dest>=<source>",
       description = "A mapping of the form <dest>=<source> indicating the "
           + "source to destination mapping.%n%nExamples:%n%n"
           + "# map top level field 'src' to 'dest'"

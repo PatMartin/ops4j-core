@@ -1,9 +1,6 @@
 package org.ops4j.io;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,6 +10,7 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.ops4j.Ops4J;
 import org.ops4j.exception.OpsException;
 import org.ops4j.util.JacksonUtil;
 
@@ -40,7 +38,7 @@ public class CsvSource extends BaseSource<CsvSource>
 
   @Option(names = { "-f", "--format" },
       description = "The format.  DEFAULT='${DEFAULT-VALUE}'"
-      + "%nVALID VALUES: ${COMPLETION-CANDIDATES})")
+          + "%nVALID VALUES: ${COMPLETION-CANDIDATES})")
   private @Getter @Setter CsvType format = CsvType.DEFAULT;
 
   public CsvSource()
@@ -59,8 +57,9 @@ public class CsvSource extends BaseSource<CsvSource>
     {
       StringWriter sw = new StringWriter();
       getLogger().debug("LOCATION=", getLocation());
-      InputStream is = new BufferedInputStream(
-          new FileInputStream(new File(getLocation())), 131072);
+      // InputStream is = new BufferedInputStream(
+      // new FileInputStream(new File(getLocation())), 131072);
+      InputStream is = Ops4J.locator().resolveSource(getLocation()).stream();
 
       CSVFormat fmt;
 

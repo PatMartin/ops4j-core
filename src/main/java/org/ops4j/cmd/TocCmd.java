@@ -26,7 +26,7 @@ import picocli.CommandLine.Parameters;
 public class TocCmd extends SubCmd implements Callable<Integer>
 {
   private enum TocTypes {
-    OP, NODEOP, ALL, SRC, DST, MODULE
+    OP, OPS, NODEOP, NODEOPS, ALL, IO, SRC, IN, DEST, OUT, MODULE, MODULES
   };
 
   @Parameters(index = "0", arity = "0..1", paramLabel = "<pattern>",
@@ -35,6 +35,9 @@ public class TocCmd extends SubCmd implements Callable<Integer>
 
   @Option(names = { "-t", "--type" }, description = "The type.")
   private @Getter @Setter TocTypes type    = TocTypes.ALL;
+
+  @Option(names = { "-w", "--width" }, description = "The width.")
+  private @Getter @Setter Integer  width   = 70;
 
   private class OpModuleComparator implements Comparator<OpModule>
   {
@@ -110,7 +113,7 @@ public class TocCmd extends SubCmd implements Callable<Integer>
   private void modulesToc() throws OpsException
   {
     Map<String, OpModule<?>> modules = Ops4J.locator().getModules();
-    System.out.println(StringBuddy.from("MODULES").banner("-", 60));
+    System.out.println(StringBuddy.from("MODULES").banner("-", getWidth()));
 
     System.out.println(StringUtil.align(modules.values().stream()
         .sorted(new OpModuleComparator()).map(OpModule::getName)
@@ -121,7 +124,7 @@ public class TocCmd extends SubCmd implements Callable<Integer>
   private void opsToc() throws OpsException
   {
     Map<String, Op<?>> ops = Ops4J.locator().getOps();
-    System.out.println(StringBuddy.from("OPERATIONS").banner("-", 60));
+    System.out.println(StringBuddy.from("OPERATIONS").banner("-", getWidth()));
 
     System.out.println(StringUtil
         .align(ops.values().stream().sorted(new OpComparator()).map(Op::getName)
@@ -134,8 +137,8 @@ public class TocCmd extends SubCmd implements Callable<Integer>
   private void nodeopsToc() throws OpsException
   {
     Map<String, NodeOp<?>> nodeOps = Ops4J.locator().getNodeOps();
-    System.out
-        .println(StringBuddy.from("NODE-OPERATIONS").banner("-", 60) + "");
+    System.out.println(
+        StringBuddy.from("NODE-OPERATIONS").banner("-", getWidth()) + "");
     System.out.println(StringUtil.align(nodeOps.values().stream()
         .sorted(new NodeOpComparator()).map(NodeOp::getName)
         .filter(name -> getPattern() == null || name.indexOf(getPattern()) > -1)
@@ -145,7 +148,8 @@ public class TocCmd extends SubCmd implements Callable<Integer>
   private void srcToc() throws OpsException
   {
     Map<String, InputSource<?>> sources = Ops4J.locator().getSources();
-    System.out.println(StringBuddy.from("INPUT-SOURCES").banner("-", 60));
+    System.out
+        .println(StringBuddy.from("INPUT-SOURCES").banner("-", getWidth()));
     System.out.println(
         StringUtil.align(sources.values().stream().map(InputSource::getName)
             .filter(
@@ -157,7 +161,8 @@ public class TocCmd extends SubCmd implements Callable<Integer>
   {
     Map<String, OutputDestination<?>> destinations = Ops4J.locator()
         .getDestinations();
-    System.out.println(StringBuddy.from("OUTPUT-DESTINATIONS").banner("-", 60));
+    System.out.println(
+        StringBuddy.from("OUTPUT-DESTINATIONS").banner("-", getWidth()));
     System.out.println(StringUtil
         .align(destinations.values().stream().map(OutputDestination::getName)
             .filter(
@@ -175,27 +180,32 @@ public class TocCmd extends SubCmd implements Callable<Integer>
       return 0;
     }
 
-    if (getType() == TocTypes.ALL || getType() == TocTypes.OP)
+    if (getType() == TocTypes.ALL || getType() == TocTypes.OP
+        || getType() == TocTypes.OPS)
     {
       opsToc();
     }
-    if (getType() == TocTypes.ALL || getType() == TocTypes.NODEOP)
+    if (getType() == TocTypes.ALL || getType() == TocTypes.NODEOP
+        || getType() == TocTypes.NODEOPS)
     {
       nodeopsToc();
     }
-    if (getType() == TocTypes.ALL || getType() == TocTypes.SRC)
+    if (getType() == TocTypes.ALL || getType() == TocTypes.IO
+        || getType() == TocTypes.SRC || getType() == TocTypes.IN)
     {
       srcToc();
     }
-    if (getType() == TocTypes.ALL || getType() == TocTypes.DST)
+    if (getType() == TocTypes.ALL || getType() == TocTypes.IO
+        || getType() == TocTypes.DEST || getType() == TocTypes.OUT)
     {
       dstToc();
     }
-    if (getType() == TocTypes.ALL || getType() == TocTypes.MODULE)
+    if (getType() == TocTypes.ALL || getType() == TocTypes.MODULE
+        || getType() == TocTypes.MODULES)
     {
       modulesToc();
     }
-    
+
     return 0;
   }
 
